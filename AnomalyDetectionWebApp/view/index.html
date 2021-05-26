@@ -1,0 +1,88 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title >Anomaly Detection Server</title>
+    </head>
+    <body style="background: cornsilk;">
+        <form  id="detectid" enctype="multipart/form-data" name="detectForm">
+            <table style='margin-left: 10; margin-top: 5; font-size: medium;'>
+                <tr>
+                    <td style="font-size: 20;">Choose anomaly detection algorithm:</td>
+                    <td>
+                        <select name="algorithm" id="algo_select" style="font-size: medium;margin: 10;">
+                        <option value="reg_algo">Regression algorithm</option>
+                        <option value="hybrid_algo">Hybrid algorithm</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-size: 20;">Enter train flight file:</td>
+                    <td><input type="file" name="train_file" id="train" style="font-size: medium;margin: 10;"></td>
+                </tr>
+                <tr>
+                    <td style="font-size: 20;">Enter test flight file:</td>
+                    <td><input type="file" name="test_file" id="test" style="font-size: medium;margin: 10;"></td>
+                </tr>
+            </table>
+            <input type="submit" value="upload" style='margin: 10; font-size: large;background-color: salmon; color: snow;'>
+        </form>
+        <br>
+        <iframe name="result" id="resultid" width="80%" height="500" style="background-color: lightgreen;"></iframe>
+        
+        <script>
+            window.addEventListener( "load", function () {//wait until html page is displayed
+            function sendData() {
+                const XHR = new XMLHttpRequest()//create http request object
+
+                // bind FormData object and form element
+                const FD = new FormData( form )
+
+                // wait for successful data submission-display the response
+                XHR.addEventListener( "load", function(event) {
+                var reports = JSON.parse(this.responseText)//create object from the response
+                var txt="<label style='font-size: 20;'>Result:</label><br>"
+                
+                if(this.responseText=='{}'){//no anomalies
+                    txt+= "<label style='font-size: 20;'>No Anomalies Found! :)</label>"
+                }
+                else{//found anomalies
+                    txt += "<table border='1' style='text-align: center; margin: 20;background-color: deepskyblue;'><tr><td style='font-size: 20;padding: 10''>timestep</td><td style='font-size: 20;padding: 10'>description</td>"
+                    var report_time
+                    for (report_time in reports) {//insert the result in a table
+                    txt += "<tr><td style='font-size: 20;padding: 5'>" + report_time + "</td>"
+                    txt += "<td style='font-size: 20;padding: 5'>" + reports[report_time] + "</td></tr>"
+                    }
+                    txt += "</table>"
+                }
+                //put the response in the inner frame
+                document.getElementById("resultid").contentDocument.body.innerHTML = txt
+                } )
+
+                //error
+                XHR.addEventListener( "error", function( event ) {
+                alert( 'Something went wrong...' )
+                } )
+                // set up the request
+                XHR.open( "POST", "/detect" )
+
+                // send the form data
+                XHR.send( FD )
+            }
+
+            const form = document.getElementById( "detectid" )
+            // listen for submit event..
+            form.addEventListener( "submit", function ( event ) {
+                //missing details
+                event.preventDefault()
+                if(document.getElementById("train").value == '' || document.getElementById("test").value == ''){
+                    alert('missing details!')
+                }
+                else{//send post request
+                    sendData()
+                 }
+
+                } )
+            } )
+        </script>
+    </body>
+</html>
