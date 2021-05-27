@@ -18,3 +18,5 @@ The models are executable files compiled from c++ programs.(note that the models
     - once you have done that, you can start looking for anomalies 😃(i.e open a web browser and type localhost:8080 in the URL line, send post request etc.)
 
 ~Anything else is self explanatory 📈
+
+Link for video demonstration: https://youtu.be/prpYiULJdBs
